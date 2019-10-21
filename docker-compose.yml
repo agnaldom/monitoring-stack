@@ -27,8 +27,64 @@ services:
     ports:
       - 9090:9090
 
+  node-exporter:
+    image: linuxtips/node-exporter_alpine
+    hostname: '{{.Node.ID}}'
+    volumes:
+      - /proc:/usr/proc
+      - /sys:/usr/sys
+      - /:/rootfs
+    deploy:
+      mode: global
+    networks:
+      - backend
+    ports:
+      - 9100:9100
+
+  alertmanager:
+    image: linuxtips/alertmanager_alpine
+    volumes:
+      - ./config/alertmanager/:/etc/alertmanager/
+    networks:
+      - backend
+    ports:
+      - 9093:9093
+
+  cadvisor:
+    image: google/cadvisor
+    hostname: '{{.Node.ID}}'
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:rw
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks:
+      - backend
+    deploy:
+      mode: global
+    ports:
+      - 8080:8080
+
+  grafana:
+    image: grafana/grafana
+    depends_on:
+      - prometheus
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./config/grafana/grafana.db:/var/lib/grafana/grafana.db
+    env_file:
+      - grafana.config
+    networks:
+      - backend
+      - frontend
+    ports:
+      - 3000:3000
+
 networks:
+  frontend:
   backend:
 
 volumes:
-    prometheus_data:
+  prometheus_data:
+  grafana_data:
