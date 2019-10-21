@@ -2,7 +2,7 @@ global:
   scrape_interval:     10s
   evaluation_interval: 10s
   external_labels:
-      monitor: 'giropops-monitoring'
+      monitor: 'monitoring-stack'
 rule_files:
   - 'alert.rules'
 alerting:
@@ -10,7 +10,7 @@ alerting:
   - scheme: http
     static_configs:
     - targets:
-      - "giropops_alertmanager:9093"
+      - "alertmanager-stack:9093"
 
 scrape_configs:
   - job_name: 'node'
